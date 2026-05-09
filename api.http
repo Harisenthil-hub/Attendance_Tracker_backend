@@ -1,0 +1,72 @@
+POST http://localhost:8000/api/v1/auth/login/ HTTP/1.1
+Content-Type: application/json
+  
+{
+    "login": "test@mail.com",
+    "password": "124567890"
+}
+
+
+
+
+###
+
+
+GET http://localhost:8000/api/v1/users/me/ HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc4MzE1ODM5LCJpYXQiOjE3NzgzMTQwMzksImp0aSI6IjUzNWIwYjY3YmI4NDQ1NGQ5ZjU0NzRiYTFmNWI4YTc5IiwidXNlcl9pZCI6IjEifQ.jAmTuGNBn1RXx9NfIEc8JitiHZhqZseD5bOOX9RKA0U
+
+
+###
+
+POST http://localhost:8000/api/v1/auth/token/refresh/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc4MzE3ODQ0LCJpYXQiOjE3NzgzMTYwNDQsImp0aSI6Ijk1NTBmZmQwZGRiYjRkMzY4ZDFhNGVkZWYyMjVjMWRhIiwidXNlcl9pZCI6IjEifQ.-OltfovbgVHGIN-KJAOFNGm1b9OIkSzlcT6LfTEupxo
+
+
+{
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc3ODQwMjQ0NCwiaWF0IjoxNzc4MzE2MDQ0LCJqdGkiOiIzYmNhNDNhMzAxMjQ0Y2EzYmI4MGRiODQ1ZGQxNmM3ZCIsInVzZXJfaWQiOiIxIn0.NuhPT4WoAgx3Y3jBPhBpbaVVBwmdNAJppqpd7tRJsuM"
+}
+
+
+
+###
+
+POST http://localhost:8000/api/v1/auth/otp/send/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc4MzQwMjkxLCJpYXQiOjE3NzgzMzg0OTEsImp0aSI6ImRkZmU4ZTA1MTgwYjQ4MzZhMjgzYzQ5N2JiMzgxNTlmIiwidXNlcl9pZCI6IjEifQ.J-QYmmr-bg5gMOAk7krhIhqqcLEZVfMVemwT1sR_buQ
+
+{
+    "email": "test@mail.com",
+    "purpose": "PASSWORD_RESET"
+}
+
+
+
+
+###
+
+POST http://localhost:8000/api/v1/auth/otp/verify/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc4MzQwMjkxLCJpYXQiOjE3NzgzMzg0OTEsImp0aSI6ImRkZmU4ZTA1MTgwYjQ4MzZhMjgzYzQ5N2JiMzgxNTlmIiwidXNlcl9pZCI6IjEifQ.J-QYmmr-bg5gMOAk7krhIhqqcLEZVfMVemwT1sR_buQ
+
+{
+    "otp": 667613,
+    "email": "test@mail.com",
+    "purpose": "PASSWORD_RESET"
+}
+
+
+
+
+###
+
+POST http://localhost:8000/api/v1/auth/password/reset/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc4MzIwNTczLCJpYXQiOjE3NzgzMTg3NzMsImp0aSI6IjNhMTVhMmJmOWIzOTQ4MGE4YzBjYzE5MWMxMDEyODE3IiwidXNlcl9pZCI6IjEifQ.Pt2-7YdYG7B6-OPDHIerRdbpr0wOmii5Slh753KhUXQ
+
+
+{
+  "new_password": "1234567890",
+  "reset_token": "uHuHT4hpJHrSB-8AgHjiZK7rus41CAtwiyIUPG_xgbA"
+}
+

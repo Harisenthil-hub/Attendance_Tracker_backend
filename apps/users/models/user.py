@@ -12,7 +12,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         TERMINATED = 'TERMINATED', 'Terminated'
         
     id = models.AutoField(primary_key=True)
-    uuid = models.UUIDField(default=uuid7, unique=True, editable=True)
+    uuid = models.UUIDField(default=uuid7, unique=True, editable=False)
     
     username = models.CharField(max_length=150, unique=True)
     email = models.EmailField(unique=True, max_length=254)

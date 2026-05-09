@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from apps.users.models import User
+from apps.users.models import User, UserProfile
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -23,5 +23,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             password = validated_data['password'],
             status = User.StatusChoices.ACTIVE
         )
+        
+        UserProfile.objects.create(user=user)
         
         return user
