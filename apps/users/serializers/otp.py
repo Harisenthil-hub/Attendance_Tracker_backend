@@ -1,17 +1,20 @@
 from rest_framework import serializers
-
+from apps.users.models import OTPVerification
 
 class SendOTPSerializer(serializers.Serializer):
     email = serializers.EmailField()
-    purpose = serializers.CharField()
+    purpose = serializers.ChoiceField(
+        choices=OTPVerification.OTPPurposeChoices.choices
+    )
     
 
 class VerifyOTPSerializer(serializers.Serializer):
     email = serializers.EmailField()
-    purpose = serializers.CharField()
+    purpose = serializers.ChoiceField(
+        choices=OTPVerification.OTPPurposeChoices.choices
+    )
     otp = serializers.CharField()
     
 class ResetPasswordSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    otp = serializers.CharField()
-    password = serializers.CharField()
+    reset_token = serializers.CharField()
+    new_password = serializers.CharField()

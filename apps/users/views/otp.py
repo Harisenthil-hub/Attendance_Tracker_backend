@@ -9,6 +9,11 @@ from apps.users.serializers.otp import *
 from apps.users.services.otp_service import create_otp
 
 
+import secrets
+from datetime import timedelta
+from django.contrib.auth.hashers import check_password
+
+
 
 class SendOTPView(APIView):
     
@@ -54,27 +59,55 @@ class VerifyOTPView(APIView):
             otp_obj = OTPVerification.objects.filter(
                 user=user,
                 purpose=purpose,
-                is_used=False
+                status=OTPVerification.OTPStatus.ACTIVE
             ).latest('created_at')
             
-        except:
+        except (User.DoesNotExist, OTPVerification.DoesNotExist):
             return Response({ 'error': 'Invalid OTP' }, status=status.HTTP_400_BAD_REQUEST)
         
         
-        if otp_obj.expires_at < timezone.now():
+        if otp_obj.is_expired():
+            otp_obj.status = OTPVerification.OTPStatus.EXPIRED
+            otp_obj.save(update_fields=['status'])
             return Response({ 'error': 'OTP Expired' }, status=status.HTTP_400_BAD_REQUEST)
         
-        if otp_obj.otp_code != otp:
-            otp_obj.attempts +=  1
-            otp_obj.save()
-            return Response({ 'error': 'Wrong OTP' }, status=status.HTTP_400_BAD_REQUEST)
         
+        if otp_obj.has_exceeded_attempts():
+            otp_obj.status = OTPVerification.OTPStatus.MAX_ATTEMPTS_EXCEEDED
+            otp_obj.save(update_fields=['status'])
+            return Response({ 'error': 'Maximum OTP attempts exceeded' }, status=status.HTTP_403_FORBIDDEN)
+            
+        if not check_password(otp, otp_obj.otp_code):
+            otp_obj.increment_attempts()
+            
+            if otp_obj.has_exceeded_attempts():
+                otp_obj.status = OTPVerification.OTPStatus.MAX_ATTEMPTS_EXCEEDED
+                otp_obj.save(update_fields=['status'])
+                return Response({ 'error': 'Maximum OTP attempts exceeded' }, status=status.HTTP_403_FORBIDDEN)
+                
+            
+            remaining_attempts = (otp_obj.max_attempts - otp_obj.attempts)
+            return Response(
+                { 
+                    'error': 'Wrong OTP',
+                    'remaining_attempts': remaining_attempts
+                }
+            , status=status.HTTP_400_BAD_REQUEST)
         
-        otp_obj.is_used = True
+        reset_token = secrets.token_urlsafe(32)
+        
+        otp_obj.status = OTPVerification.OTPStatus.USED
+        otp_obj.reset_token = reset_token
+        otp_obj.reset_token_expires_at = timezone.now() + timedelta(minutes=10)
         otp_obj.save()
         
-        return Response({ 'message': 'OTP Verified' })
-            
+        return Response(
+            { 
+                'message': 'OTP Verified',
+                'reset_token': reset_token
+            }
+        )
+           
 
 class ResetPasswordView(APIView):
     
@@ -86,23 +119,31 @@ class ResetPasswordView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
         
-        email = serializer.validated_data['email']
-        otp = serializer.validated_data['otp']
+        reset_token = serializer.validated_data['reset_token']
         new_password = serializer.validated_data['new_password']
         
         
         try:
-            user = User.objects.get(email=email)
-            otp_obj = OTPVerification.objects.filter(
-                user=user,
-                otp_code=otp,
+            otp_obj = OTPVerification.objects.get(
+                reset_token=reset_token,
                 is_used=True
             )
-        except:
-            return Response({ 'error': 'Invalid OTP' }, status=status.HTTP_400_BAD_REQUEST)
+        except OTPVerification.DoesNotExist:
+            return Response({ 'error': 'Invalid reset token' }, status=status.HTTP_400_BAD_REQUEST)
         
-        user.set_password(password)
+        
+        if otp_obj.reset_token_expires_at < timezone.now():
+            return Response({ 'error': 'Reset token expired' }, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+        user = otp_obj.user
+        
+        user.set_password(new_password)
         user.save()
+        
+        # invalidate token
+        otp_obj.reset_token = None
+        otp_obj.save()
         
         return Response({ 'message': 'Password reset successfull' }, status=status.HTTP_201_CREATED)
         

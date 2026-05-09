@@ -50,6 +50,9 @@ INSTALLED_APPS = [
     'apps.github',
     'apps.reports',
     'apps.notifications',
+    
+    # utils
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -87,14 +90,15 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': os.getenv('DB_ENGINE'),
         'NAME': os.getenv('DB_NAME'),
         'USER': os.getenv('DB_USER'),
         'PASSWORD': os.getenv('DB_PASSWORD'),
         'HOST': os.getenv('DB_HOST'),
         'PORT': os.getenv('DB_PORT'),
         'OPTIONS': {
-            'sslmode': 'require',
+            # 'sslmode': 'require', this is only for postrgres
+            "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
         },
     }
 }
@@ -122,6 +126,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 
@@ -153,3 +158,11 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 AUTH_USER_MODEL = 'users.User'
+
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': "ATR API'S",
+    'DESCRIPTION': "The listed api's are created by the backend team for ATR application",
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}
