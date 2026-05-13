@@ -2,8 +2,8 @@ POST http://localhost:8000/api/v1/auth/login/ HTTP/1.1
 Content-Type: application/json
   
 {
-    "login": "test@mail.com",
-    "password": "124567890"
+    "login": "test1",
+    "password": "1234567890"
 }
 
 
@@ -12,9 +12,17 @@ Content-Type: application/json
 ###
 
 
-GET http://localhost:8000/api/v1/users/me/ HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc4MzE1ODM5LCJpYXQiOjE3NzgzMTQwMzksImp0aSI6IjUzNWIwYjY3YmI4NDQ1NGQ5ZjU0NzRiYTFmNWI4YTc5IiwidXNlcl9pZCI6IjEifQ.jAmTuGNBn1RXx9NfIEc8JitiHZhqZseD5bOOX9RKA0U
+POST  http://localhost:8000/api/v1/auth/create/user/ HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc4Njc1MDM2LCJpYXQiOjE3Nzg2NzMyMzYsImp0aSI6IjJkNTJhMzhmZDA5MDRkZDg4MGQ2MDIwMTlhMjc5ZDg0IiwidXNlcl9pZCI6IjMifQ.3AMliTLdVryhig0wOYNe5bC2Eg0oSwyIH1Cq9pDjkQk
+Content-Type: application/json
 
+
+{
+    "email": "test4@mail.com", 
+    "username": "test4" , 
+    "password": "1234567890", 
+    "role": "teamlead"
+}
 
 ###
 
@@ -70,3 +78,34 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
   "reset_token": "uHuHT4hpJHrSB-8AgHjiZK7rus41CAtwiyIUPG_xgbA"
 }
 
+
+
+### 
+
+PATCH http://localhost:8000/api/v1/users/me/profile/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc4NTg2OTUwLCJpYXQiOjE3Nzg1ODUxNTAsImp0aSI6IjAxYTU0YWYxODM4NDQzNGJiYzc0YTRiMWNiNGQ1N2ZmIiwidXNlcl9pZCI6IjEifQ.Njs2zPks_0fCvo6Pb9bCux-VmnisVWvwx_aTLNXW1p0
+
+
+{
+    "full_name": "testAdmin",
+    "phone": "6675657657",
+    "dob": "2020-04-13",
+    "gender": "MALE"
+}
+
+
+
+### 
+
+PATCH http://localhost:8000/api/v1/users/019e0bc5-e798-7b32-a214-09c9af25a32a/status/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc4NTg4OTA0LCJpYXQiOjE3Nzg1ODcxMDQsImp0aSI6IjJiOGM4NTk2YmU4NjQ4ZGRiYmVhZTA2NjcyN2E0YzU3IiwidXNlcl9pZCI6IjEifQ.xmYsBOaqez5m-xJq6S4Xi_FTxyEIdExFq4T3xllPVaQ
+
+
+{
+    "new_status": "ACTIVE",
+    "suspension_reason": "Testing",
+    "suspension_start": "2025-02-12",
+    "suspension_end": "2026-02-12"
+}

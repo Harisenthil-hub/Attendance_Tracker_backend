@@ -11,6 +11,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         SUSPENDED = 'SUSPENDED', 'Suspended'
         TERMINATED = 'TERMINATED', 'Terminated'
         
+    is_staff = models.BooleanField(default=False)
     id = models.AutoField(primary_key=True)
     uuid = models.UUIDField(default=uuid7, unique=True, editable=False)
     
@@ -23,6 +24,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_verified = models.BooleanField(default=False)
     
     last_login = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -32,6 +34,17 @@ class User(AbstractBaseUser, PermissionsMixin):
     
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
+    
+    
+    def save(self, *args, **kwargs):
+        
+        if self.status != self.StatusChoices.ACTIVE:
+            self.is_active = False
+        else:
+            self.is_active = True
+            
+        super().save(*args, **kwargs)
+        
     
     def __str__(self):
         return self.email
