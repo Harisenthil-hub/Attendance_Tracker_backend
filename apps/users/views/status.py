@@ -64,7 +64,7 @@ class UpdateUserStatusView(APIView):
             old_status=old_status,
             new_status=new_status,
             reason=reason,
-            changed_user=request.user
+            changed_by=request.user
         )
         
         return Response({ 'message': 'Status updated successfully' }, status=status.HTTP_200_OK)

@@ -22,7 +22,7 @@ class UserStatusHistory(models.Model):
     
     reason = models.TextField(blank=True)
     
-    changed_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='changed_users')
+    changed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='changed_users')
     
     changed_at = models.DateTimeField(auto_now_add=True)
     

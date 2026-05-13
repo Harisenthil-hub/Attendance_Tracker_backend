@@ -11,6 +11,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         SUSPENDED = 'SUSPENDED', 'Suspended'
         TERMINATED = 'TERMINATED', 'Terminated'
         
+    is_staff = models.BooleanField(default=False)
     id = models.AutoField(primary_key=True)
     uuid = models.UUIDField(default=uuid7, unique=True, editable=False)
     

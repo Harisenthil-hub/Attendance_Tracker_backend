@@ -9,7 +9,6 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ['full_name', 'phone', 'dob', 'gender', 'avatar_url']
 
 class UserSerializer(serializers.ModelSerializer):
-    
     profile = ProfileSerializer(read_only=True)
     
     class Meta:
