@@ -2,21 +2,47 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import authenticate
-
-
 from rest_framework_simplejwt.tokens import RefreshToken
-
 from apps.users.models import User, LoginHistory
-from apps.users.serializers.auth import RegisterSerializer
+from apps.users.serializers.auth import CreateUserSerializer
+from apps.users.services.permission_service import has_permission
+from apps.users.permissions.rbac import HasRBACPermission
+from rest_framework.permissions import IsAuthenticated
 
 
-class RegisterView(APIView):
+
+
+class CreateUserView(APIView):
+    
+    permission_classes = [IsAuthenticated, HasRBACPermission]
+    required_permission = 'create_user'
     
     def post(self, request):
         
-        serializer = RegisterSerializer(data=request.data)
+        requested_role = request.data.get('role')
         
-        if serializer.is_valid():
+        
+        if requested_role == 'admin':
+            if not has_permission(request.user, 'create_admin'):
+                return Response(
+                    { 'error': 'No permission to create admin' },
+                    status=status.HTTP_403_FORBIDDEN
+                )
+                
+        
+        if requested_role == 'teamlead':
+            if not has_permission(request.user, 'create_teamlead'):
+                return Response(
+                    { 'error': 'No permission to create Team lead' },
+                    status=status.HTTP_403_FORBIDDEN
+                )
+                
+                
+        
+        
+        serializer = CreateUserSerializer(data=request.data)
+        
+        if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(
                 {'message': 'User created successfully'},

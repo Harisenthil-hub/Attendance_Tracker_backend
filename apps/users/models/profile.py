@@ -12,7 +12,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     
     full_name = models.CharField(max_length=255, blank=True)
-    phone = models.CharField(max_length=20, blank=True, unique=True)
+    phone = models.CharField(max_length=20, blank=True, unique=True, null=True)
     dob = models.DateField(null=True, blank=True)
     gender = models.CharField(max_length=10, choices=GenderChoices.choices, blank=True)
     avatar_url = models.ImageField(upload_to='avatars/', null=True, blank=True)
