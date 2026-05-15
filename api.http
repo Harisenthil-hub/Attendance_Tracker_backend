@@ -85,15 +85,21 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 ### 
 
-PATCH http://localhost:8000/api/v1/users/me/profile/ HTTP/1.1
+GET  http://localhost:8000/api/v1/users/me/ HTTP/1.1
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc4NTg2OTUwLCJpYXQiOjE3Nzg1ODUxNTAsImp0aSI6IjAxYTU0YWYxODM4NDQzNGJiYzc0YTRiMWNiNGQ1N2ZmIiwidXNlcl9pZCI6IjEifQ.Njs2zPks_0fCvo6Pb9bCux-VmnisVWvwx_aTLNXW1p0
+
+
+###
+
+
+PATCH   http://localhost:8000/api/v1/users/me/ HTTP/1.1
+Content-Type: application/json
+
 
 
 {
-    "full_name": "testAdmin",
-    "phone": "6675657657",
-    "dob": "2020-04-13",
+    "full_name": "Admin",
+    "phone": "66975657657",
     "gender": "MALE"
 }
 
