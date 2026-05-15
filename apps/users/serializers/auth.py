@@ -11,7 +11,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = User
-        fields = ['email', 'username', 'password', 'role', 'joined_at']
+        fields = ['email', 'username', 'password', 'role', 'joined_date']
         
     def validate_email(self, value):
         if User.objects.filter(email=value).exists():
@@ -27,7 +27,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
     
     def validate_joined_date(self, value):
         
-        if value > timezone.now():
+        if value > timezone.now().date():
             raise serializers.ValidationError('Join date cannot be in the future')
         
         return value

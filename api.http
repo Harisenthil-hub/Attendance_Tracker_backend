@@ -17,8 +17,8 @@ Content-Type: application/json
 
 
 {
-    "email": "test6@mail.com", 
-    "username": "test6" , 
+    "email": "test7@mail.com", 
+    "username": "test7" , 
     "password": "1234567890", 
     "role": "teamlead",
     "joined_date": "2024-01-01"
