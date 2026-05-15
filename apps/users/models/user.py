@@ -18,6 +18,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=150, unique=True)
     email = models.EmailField(unique=True, max_length=254)
     password = models.CharField(max_length=255)
+    joined_date = models.DateField(blank=True, null=True)
     
     status = models.CharField(max_length=20, choices=StatusChoices.choices, default=StatusChoices.ACTIVE)
     

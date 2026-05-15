@@ -13,15 +13,15 @@ Content-Type: application/json
 
 
 POST  http://localhost:8000/api/v1/auth/create/user/ HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc4Njc1MDM2LCJpYXQiOjE3Nzg2NzMyMzYsImp0aSI6IjJkNTJhMzhmZDA5MDRkZDg4MGQ2MDIwMTlhMjc5ZDg0IiwidXNlcl9pZCI6IjMifQ.3AMliTLdVryhig0wOYNe5bC2Eg0oSwyIH1Cq9pDjkQk
 Content-Type: application/json
 
 
 {
-    "email": "test4@mail.com", 
-    "username": "test4" , 
+    "email": "test6@mail.com", 
+    "username": "test6" , 
     "password": "1234567890", 
-    "role": "teamlead"
+    "role": "teamlead",
+    "joined_date": "2024-01-01"
 }
 
 ###
