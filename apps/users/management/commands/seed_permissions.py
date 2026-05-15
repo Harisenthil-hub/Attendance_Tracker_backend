@@ -71,9 +71,12 @@ class Command(BaseCommand):
             
             RolePermission.objects.get_or_create(
                 role=teamlead_role,
-                permission=permission_map[name]
+                permission=permission_map[permission_name]
             )
             
         self.stdout.write(
             self.style.SUCCESS('Permissions seeded successfully')
         )
+        
+        
+        
