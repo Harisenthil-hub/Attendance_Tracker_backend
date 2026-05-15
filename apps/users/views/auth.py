@@ -9,6 +9,7 @@ from apps.users.services.permission_service import has_permission
 from apps.users.permissions.rbac import HasRBACPermission
 from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
+from apps.users.utils.ip import get_client_ip
 
 
 
@@ -94,7 +95,7 @@ class LoginView(APIView):
             LoginHistory.objects.create(
                 user=user_obj,
                 action=LoginHistory.ActionChoices.LOGIN_FAILED,
-                ip_address=self.get_client_ip(request),
+                ip_address=get_client_ip(request),
                 user_agent=request.META.get('HTTP_USER_AGENT', '')
             )
             return Response(
@@ -109,7 +110,7 @@ class LoginView(APIView):
             LoginHistory.objects.create(
                 user=user_obj,
                 action=LoginHistory.ActionChoices.ACCOUNT_LOCKED,
-                ip_address=self.get_client_ip(request),
+                ip_address=get_client_ip(request),
                 user_agent=request.META.get('HTTP_USER_AGENT', '')
             )
             return Response(
@@ -133,7 +134,7 @@ class LoginView(APIView):
         LoginHistory.objects.create(
             user=user_obj,
             action=LoginHistory.ActionChoices.LOGIN_SUCCESS,
-            ip_address=self.get_client_ip(request),
+            ip_address=get_client_ip(request),
             user_agent=request.META.get('HTTP_USER_AGENT', '')
         )
         refresh = RefreshToken.for_user(user)
@@ -183,14 +184,47 @@ class LoginView(APIView):
         return response
         
         
-    def get_client_ip(self, request):
-        
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-        
-        if x_forwarded_for:
-            return x_forwarded_for.split(',')[0]
-        
-        return request.META.get('REMOTE_ADDR')
+   
         
         
+       
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
         
+        try:
+            
+            refresh_token = request.COOKIES.get('refresh_token')
+            
+            if refresh_token:
+                token = RefreshToken(refresh_token)
+                token.blacklist()
+                
+                LoginHistory.objects.create(
+                    user=request.user,
+                    action=LoginHistory.ActionChoices.LOGGED_OUT,
+                    ip_address=get_client_ip(request),
+                    user_agent=request.META.get('HTTP_USER_AGENT', '')     
+                )
+                
+                response = Response(
+                    {
+                        'success': True,
+                        'message': 'Logout successfull'
+                    },
+                    status=status.HTTP_204_NO_CONTENT
+                )
+                
+                response.delete_cookie('access_token')
+                response.delete_cookie('refresh_token')
+                
+                return response
+        except Exception as e:
+           return Response(
+               {
+                   'success': False,
+                   'message': str(e)
+               },
+               status=status.HTTP_400_BAD_REQUEST
+           )

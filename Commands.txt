@@ -1,0 +1,21 @@
+# For seeding roles
+python manage.py seed_roles
+
+# For seeding permissions
+python manage.py seed_permissions
+
+
+
+# on Shell for superuser as admin
+
+from apps.users.models import User, Role, UserRole
+
+user = User.objects.get(email='admin@gmail.com')
+
+admin_role = Role.objects.get(name='admin')
+
+UserRole.objects.create(
+    user=user,
+    role=admin_role
+)
+
