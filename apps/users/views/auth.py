@@ -4,12 +4,13 @@ from rest_framework import status
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from apps.users.models import User, LoginHistory, UserRole
-from apps.users.serializers.auth import CreateUserSerializer
+from apps.users.serializers.auth import CreateUserSerializer, ChangePasswordSerializer
 from apps.users.services.permission_service import has_permission
 from apps.users.permissions.rbac import HasRBACPermission
 from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 from apps.users.utils.ip import get_client_ip
+from django.contrib.auth import update_session_auth_hash
 
 
 
@@ -183,10 +184,7 @@ class LoginView(APIView):
         
         return response
         
-        
-   
-        
-        
+           
        
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
@@ -228,3 +226,51 @@ class LogoutView(APIView):
                },
                status=status.HTTP_400_BAD_REQUEST
            )
+           
+           
+           
+class ChangePasswordView(APIView):
+    
+    permission_classes = [IsAuthenticated]
+    
+    
+    def post(self, request):
+        
+        serializer = ChangePasswordSerializer(data=request.data)
+        
+        
+        serializer.is_valid(raise_exception=True)
+        
+        current_password = serializer.validated_data['current_password']
+        new_password = serializer.validated_data['new_password']
+        
+        user = request.user
+        
+        if not user.check_password(current_password):
+            return Response(
+                {
+                    'success': False,
+                    'error': 'Current password is incorrect'
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        if current_password == new_password:
+            return Response(
+                {
+                    'success': False,
+                    'error': 'New password cannot be same as the current password'
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        user.set_password(new_password)
+        user.save()
+        
+        
+        update_session_auth_hash(request, user)
+        
+        return Response({
+            'success': True,
+            'message': 'Password changed successfully'
+        }, status=status.HTTP_200_OK)

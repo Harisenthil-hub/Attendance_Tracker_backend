@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.db import transaction
 from apps.users.models import User, UserProfile, Role, UserRole
 from django.utils import timezone
+from django.contrib.auth.password_validation import validate_password
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
@@ -56,3 +57,31 @@ class CreateUserSerializer(serializers.ModelSerializer):
             )
         
         return user
+    
+    
+    
+class ChangePasswordSerializer(serializers.Serializer):
+    
+    current_password = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(write_only=True)
+    confirm_password = serializers.CharField(write_only=True)
+    
+    
+    def validate_new_password(self, value):
+        validate_password(value)
+        
+        return value
+    
+    def validate(self, attrs):
+        
+        new_password = attrs.get('new_password')
+        confirm_password = attrs.get('confirm_password')
+        
+        if new_password != confirm_password:
+            
+            raise serializers.ValidationError({
+                'confirm_password': 'Passwords do not match'
+            })
+            
+        return attrs
+    
