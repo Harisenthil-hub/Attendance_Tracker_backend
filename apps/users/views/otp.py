@@ -11,11 +11,14 @@ from apps.users.services.otp_service import create_otp
 
 import secrets
 from datetime import timedelta
-from django.contrib.auth.hashers import check_password
+from django.contrib.auth.hashers import check_password, make_password
 
 
 
 class SendOTPView(APIView):
+    
+    permission_classes = []
+    authentication_classes = []
     
     def post(self, request):
         serializer = SendOTPSerializer(data=request.data)
@@ -29,7 +32,7 @@ class SendOTPView(APIView):
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
-            return Response( { 'error': 'User account not found' }, status=status.HTTP_404_NOT_FOUND )
+            return Response( { 'message': 'If account exists, OTP has been sent' }, status=status.HTTP_200_OK )
         
         
         otp = create_otp(user, purpose)
@@ -37,10 +40,13 @@ class SendOTPView(APIView):
         
         print('Otp:', otp) # here otp sending logic will come
         
-        return Response({ 'message': 'OTP has been sent' }, status=status.HTTP_200_OK)
+        return Response({ 'message': 'If account exists, OTP has been sent' }, status=status.HTTP_200_OK)
     
     
 class VerifyOTPView(APIView):
+    
+    permission_classes = []
+    authentication_classes = []
     
     def post(self, request):
         
@@ -94,22 +100,27 @@ class VerifyOTPView(APIView):
                 }
             , status=status.HTTP_400_BAD_REQUEST)
         
-        reset_token = secrets.token_urlsafe(32)
+        raw_token = secrets.token_urlsafe(32)
+        hashed_reset_token = make_password(raw_token)
         
         otp_obj.status = OTPVerification.OTPStatus.USED
-        otp_obj.reset_token = reset_token
+        otp_obj.reset_token = hashed_reset_token
         otp_obj.reset_token_expires_at = timezone.now() + timedelta(minutes=10)
         otp_obj.save()
         
         return Response(
             { 
                 'message': 'OTP Verified',
-                'reset_token': reset_token
+                'token_identifier': otp_obj.token_identifier,
+                'reset_token': raw_token,
             }
         )
            
 
 class ResetPasswordView(APIView):
+    
+    permission_classes = []
+    authentication_classes = []
     
     def post(self, request):
         
@@ -121,18 +132,24 @@ class ResetPasswordView(APIView):
         
         reset_token = serializer.validated_data['reset_token']
         new_password = serializer.validated_data['new_password']
+        token_identifier = serializer.validated_data['token_identifier']
         
         
         try:
             otp_obj = OTPVerification.objects.get(
-                reset_token=reset_token,
-                is_used=True
+                token_identifier=token_identifier,
+                status=OTPVerification.OTPStatus.USED
             )
         except OTPVerification.DoesNotExist:
             return Response({ 'error': 'Invalid reset token' }, status=status.HTTP_400_BAD_REQUEST)
         
         
-        if otp_obj.reset_token_expires_at < timezone.now():
+        if not check_password(reset_token, otp_obj.reset_token):
+            return Response({ 'error': 'Invalid Token' }, status=status.HTTP_400_BAD_REQUEST)
+        
+        if ( not otp_obj.reset_token_expires_at or 
+            otp_obj.reset_token_expires_at < timezone.now()
+            ):
             return Response({ 'error': 'Reset token expired' }, status=status.HTTP_400_BAD_REQUEST)
         
         
@@ -143,7 +160,15 @@ class ResetPasswordView(APIView):
         
         # invalidate token
         otp_obj.reset_token = None
-        otp_obj.save()
+        otp_obj.reset_token_expires_at = None
+        otp_obj.status = OTPVerification.OTPStatus.INVALIDATED
+        otp_obj.save(
+            update_fields=[
+                'reset_token',
+                'reset_token_expires_at',
+                'status'
+            ]
+        )
         
-        return Response({ 'message': 'Password reset successfull' }, status=status.HTTP_201_CREATED)
+        return Response({ 'message': 'Password reset successfull' }, status=status.HTTP_200_OK)
         
