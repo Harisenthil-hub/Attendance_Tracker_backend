@@ -1,6 +1,7 @@
 from django.db import models
 from .user import User
 from django.utils import timezone
+import uuid
 
 class LoginHistory(models.Model):
     
@@ -54,6 +55,7 @@ class OTPVerification(models.Model):
     attempts = models.IntegerField(default=0)
     max_attempts = models.IntegerField(default=5)
     
+    token_identifier = models.UUIDField(default=uuid.uuid4, unique=True, editable=False, null=True, blank=True)
     reset_token = models.CharField(max_length=255, null=True, blank=True)
     reset_token_expires_at = models.DateTimeField(null=True, blank=True)
     
